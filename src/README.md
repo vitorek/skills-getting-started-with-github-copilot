@@ -5,8 +5,10 @@ A super simple FastAPI application that allows students to view and sign up for 
 ## Features
 
 - View all available extracurricular activities
+- View the participant list and current availability for each activity
 - Sign up for activities
 - Prevent duplicate sign-ups for the same activity
+- Refresh participant lists and availability after each successful sign-up
 
 ## Getting Started
 
