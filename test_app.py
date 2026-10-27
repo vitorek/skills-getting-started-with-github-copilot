@@ -1,12 +1,25 @@
+import tempfile
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
-from src.app import activities, app
+from src.app import activities, app, load_participants
 
 
 class SignupTests(unittest.TestCase):
     def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.participants_file = Path(self.temp_dir.name) / "participants.json"
+        self.participants_file_patch = patch(
+            "src.app.PARTICIPANTS_FILE",
+            self.participants_file,
+        )
+        self.participants_file_patch.start()
+        self.addCleanup(self.participants_file_patch.stop)
+        self.addCleanup(self.temp_dir.cleanup)
+
         self.client = TestClient(app)
         self.original_participants = {
             name: list(activity["participants"])
@@ -49,3 +62,18 @@ class SignupTests(unittest.TestCase):
 
         self.assertEqual(chess_response.status_code, 200)
         self.assertEqual(programming_response.status_code, 200)
+
+    def test_signup_is_restored_from_file(self):
+        email = "persistent-check@mergington.edu"
+        response = self.client.post(
+            "/activities/Chess%20Club/signup",
+            params={"email": email},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.participants_file.exists())
+
+        activities["Chess Club"]["participants"].remove(email)
+        load_participants()
+
+        self.assertIn(email, activities["Chess Club"]["participants"])

@@ -9,6 +9,7 @@ A super simple FastAPI application that allows students to view and sign up for 
 - Sign up for activities
 - Prevent duplicate sign-ups for the same activity
 - Refresh participant lists and availability after each successful sign-up
+- Save participant emails to `participants.json` so they persist after an app restart
 
 ## Getting Started
 
@@ -50,4 +51,8 @@ The application uses a simple data model with meaningful identifiers:
    - Name
    - Grade level
 
-All data is stored in memory, which means data will be reset when the server restarts.
+Activity details are defined in the application, while participant emails are saved in
+`participants.json` alongside `app.py`. The file is created on the first successful
+sign-up and loaded when the application starts. Keep this file to preserve sign-ups
+between restarts; it is excluded from source control because it contains student email
+addresses.
